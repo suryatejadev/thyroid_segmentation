@@ -1,4 +1,4 @@
 from .unet import unet
-#  from .dilatedunet import dilated_unet
-#  from .dilateddensenet import dilated_densenet
-#  from .windowunet import window_unet
+from .dilated_unet import dilated_unet
+from .dilated_densenet import dilated_densenet
+from .window_unet import window_unet

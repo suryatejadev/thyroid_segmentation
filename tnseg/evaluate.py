@@ -83,11 +83,11 @@ def remove_smaller_components(im):
             dfs(i+1,j,root,key_elem, change_to)
             dfs(i,j-1,root,key_elem, change_to)
             dfs(i,j+1,root,key_elem, change_to)
-    
+
     for i in range(im_.shape[0]):
         for j in range(im_.shape[1]):
             dfs(i,j, tuple((i,j)),1,2)
-            
+
     big_comp = max(sizes, key=sizes.get)
     dfs(big_comp[0], big_comp[1], big_comp, 2,1)
     im_[im_>1] = 0
@@ -127,14 +127,14 @@ def evaluate_test_folder(model, save_path=None, test_path=None, postproc=False, 
     pred_maps = probas.copy()
     pred_maps[probas>=thresh] = 1#255
     pred_maps[probas<thresh] = 0
-    
+
     #  for i in tqdm(range(pred_maps.shape[0])):
     #      pred_maps[i] = remove_smaller_components(pred_maps[i])
-    
-    [h,w] = data[0].shape
-    dice_coef = [dice_coef_numpy(annot[i:i+1], pred_maps[i:i+1]) for i in range(n_frame)]
-    annot = [np.sum(annot[i:i+1])/(h*w*1.) for i in range(n_frame)]
-    annot_pred = [np.sum(pred_maps[i:i+1])/(h*w*1.) for i in range(n_frame)]
+
+    # [h,w] = data[0].shape
+    # dice_coef = [dice_coef_numpy(annot[i:i+1], pred_maps[i:i+1]) for i in range(n_frame)]
+    # annot = [np.sum(annot[i:i+1])/(h*w*1.) for i in range(n_frame)]
+    # annot_pred = [np.sum(pred_maps[i:i+1])/(h*w*1.) for i in range(n_frame)]
 
     #  top_50_indices = np.argpartition(np.array(annot_pred),-100)[-100:]
     #  annot_,dice_coef_,annot_pred_ = [],[],[]
@@ -142,15 +142,15 @@ def evaluate_test_folder(model, save_path=None, test_path=None, postproc=False, 
     #      annot_.append(annot[i])
     #      annot_pred_.append(annot_pred[i])
     #      dice_coef_.append(dice_coef[i])
-    
-    
-    annot_,dice_coef_,annot_pred_ = [],[],[]
-    for i in range(n_frame):
-        if annot_pred[i]>0.04:
-            annot_.append(annot[i])
-            annot_pred_.append(annot_pred[i])
-            dice_coef_.append(dice_coef[i])
-    return  np.mean(np.array(dice_coef_))
+
+
+    # annot_,dice_coef_,annot_pred_ = [],[],[]
+    # for i in range(n_frame):
+        # if annot_pred[i]>0.04:
+            # annot_.append(annot[i])
+            # annot_pred_.append(annot_pred[i])
+            # dice_coef_.append(dice_coef[i])
+    # return  np.mean(np.array(dice_coef_))
 
     dice_coef_avg = 0.0
     for i in range(n_frame):

@@ -178,14 +178,14 @@ def get_max_dimensions(data_list):
     return 320, 448
 
 def create_generators(datadir=None, batch_size=64, augmentation_args=None,\
-        model='unet', zero_padding=[0,0], data_skew=False, validation_index=None):
-    
+        model='unet', zero_padding=[0,0], data_skew=False, validation_index=None, window=0):
+
     # Load data from the data directory
     if datadir==None:
         raise Exception("Data directory not specified")
     data_list, annot_list = import_dicom_data(datadir)
     print(len(data_list))
-    
+
     # Get the max dimensions of the DICOM frames, and zeropad all images
     h_max, w_max = get_max_dimensions(data_list)
     for i, data in enumerate(data_list):
@@ -233,7 +233,7 @@ def create_generators(datadir=None, batch_size=64, augmentation_args=None,\
             zoom_range=0.,
             horizontal_flip=0.,
             fill_mode=0.)
-    
+
     # Get model specific data generators
     if model in ['unet', 'dilated-unet', 'dilated-densenet']:
         if data_skew==True:
@@ -242,7 +242,7 @@ def create_generators(datadir=None, batch_size=64, augmentation_args=None,\
         else:
             train_generator = datagen.flow(x=np.expand_dims(trn_imgs, axis=3), y=np.expand_dims(trn_labels, axis=3), batch_size=16)
             val_generator = datagen.flow(x=np.expand_dims(val_imgs, axis=3), y=np.expand_dims(val_labels, axis=3), batch_size=16)
-    elif mode=='window-unet':
+    elif model=='window-unet':
         train_generator = get_weighted_batch_window_2d(trn_imgs, trn_labels, batch_size, data_augment, window)
         val_generator = get_weighted_batch_window_2d(val_imgs, val_labels, batch_size, data_augment, window, high_skew=True)
 

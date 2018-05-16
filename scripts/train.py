@@ -7,6 +7,8 @@ import argparse
 import logging
 import sys
 sys.path.append('..')
+import matplotlib as mpl
+mpl.use('Agg')
 
 from keras import losses, optimizers, utils
 from keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
@@ -15,7 +17,7 @@ from keras import backend as K
 
 from tnseg import dataset, models, loss, opts, evaluate
 
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
+# os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 def select_optimizer(optimizer_name, optimizer_args):
     optimizers = {
@@ -48,7 +50,7 @@ def train(validation_index, args):
             'alpha': args.alpha,
             'sigma': args.sigma,
         }
-    
+
     #  train_generator, train_steps_per_epoch, \
     #      val_generator, val_steps_per_epoch = dataset.create_generators(
     #          args.datadir, args.batch_size,
@@ -74,32 +76,33 @@ def train(validation_index, args):
             model=args.model,
             zero_padding=args.zero_padding,
             data_skew=args.data_skew,
-            validation_index=validation_index
+            validation_index=validation_index,
+            window=args.window
             )
 
-    # get image dimensions from first batch
-    #  images, _ = next(train_generator)
-    #  _, height, width, channels = images.shape
-    #  _, _, _, classes = masks.shape
+    if args.model=='unet':
+        m = models.unet(height=None, width=None, channels=1, features=args.features,
+                depth=args.depth, padding=args.padding, temperature=args.temperature,
+                batchnorm=args.batchnorm, dropout=args.dropout)
+    elif args.model=='dilated-unet':
+        m = models.dilated_unet(height=None, width=None, channels=1,
+                classes=2, features=args.features, depth=args.depth,
+                temperature=args.temperature, padding=args.padding,
+                batchnorm=args.batchnorm, dropout=args.dropout)
+    elif args.model=='dilated-densenet':
+        m = models.dilated_densenet(height=None, width=None, channels=1,
+                classes=2, features=args.features, depth=args.depth,
+                temperature=args.temperature, padding=args.padding,
+                batchnorm=args.batchnorm,dropout=args.dropout)
+    elif args.model=='window-unet':
+        m = models.window_unet(height=None, width=None,
+                features=args.features, padding=args.padding,
+                dropout=args.dropout, batchnorm=args.batchnorm, window_size=args.window)
+    else:
+        raise ValueError('Model not supported. Please select from: unet,\
+                dilated-unet, dilated-densenet, window-unet')
 
-    logging.info("Building model...")
-    string_to_model = {
-        "unet": models.unet,
-        #  "dilated-unet": models.dilated_unet,
-        #  "dilated-densenet": models.dilated_densenet,
-        #  "window-unet": models.window_unet,
-        #  "masktrack-unet": models.masktrack-unet,
-    }
-    
-    model = string_to_model[args.model]
-    #  m = model(height=height, width=width, channels=channels, classes=classes,
-    #            features=args.features, depth=args.depth, padding=args.padding,
-    #            temperature=args.temperature, batchnorm=args.batchnorm,
-    #            dropout=args.dropout)
-    m = model(height=None, width=None, channels=1, features=args.features, 
-            depth=args.depth, padding=args.padding, temperature=args.temperature, 
-            batchnorm=args.batchnorm, dropout=args.dropout)
-    m.summary()
+        m.summary()
 
     if args.load_weights:
         logging.info("Loading saved weights from file: {}".format(args.load_weights))
@@ -136,7 +139,7 @@ def train(validation_index, args):
     #      batch_dice_coefs = loss.sorensen_dice(y_true, y_pred, axis=[1, 2])
     #      dice_coefs = K.mean(batch_dice_coefs, axis=0)
     #      return dice_coefs[1]    # HACK for 2-class cas   metrics = [loss.dice_coef]
-    
+
     if args.loss == 'dice':
         lossfunc = lambda y_true, y_pred: loss.dice_coef_loss(y_true, y_pred)
     elif args.loss == 'pixel':
@@ -197,14 +200,14 @@ def evaluation(model, out, validation_index, args):
     # Paths to save predictions and results of the model ---------------------
     save_prediction_path = args.outdir+'/predictions/'
     save_results_path = args.outdir+'/results/'
-    
+
     # Saving accuracy and error plots ----------------------------------------
     evaluate.eval_error_plots(out, save_results_path+str(iter_model)+'_')
-    
+
     # Saving history ---------------------------------------------------------
     results_dict = {}
-    results_dict['history_'+str(iter_model)] = out.history  
-    
+    results_dict['history_'+str(iter_model)] = out.history
+
     # Saving output annotation maps ------------------------------------------
     folder_names = os.listdir(args.datadir+'/images/')
     dice_vals = []
@@ -213,32 +216,32 @@ def evaluation(model, out, validation_index, args):
         folder_prediction_path = save_prediction_path+folder+'/'
         if os.path.exists(folder_prediction_path)==False:
             os.mkdir(folder_prediction_path)
-        dice_vals.append(evaluate.evaluate_test_folder(model, folder_prediction_path, 
+        dice_vals.append(evaluate.evaluate_test_folder(model, folder_prediction_path,
             args.datadir+'/data_images/'+folder+'/', n_window=args.window))
     return dice_vals
 
 ####################################################################
 # Training Methodology:
 # - The dataset has 16 DICOM videos
-# - Using each architecture, We are building 8 models, 
+# - Using each architecture, We are building 8 models,
 #   using 2 videos for validation for each model
 # - Our output is the validation dice coefficient for the 16 videos
 # - This methodology is adopted due to the availability of less data
 ##########################################################3#########
 if __name__ == '__main__':
-   
-    logging.basicConfig(level=logging.INFO)
 
+    logging.basicConfig(level=logging.INFO)
     args = opts.parse_arguments()
 
-    logging.info("Creating experiment output folders...")
+    # Creating experiment output folders
     if os.path.exists(args.outdir)==False:
         os.mkdir(args.outdir)
     for item in ['predictions/', 'results/', 'weights/']:
         path = args.outdir + '/' + item
         if os.path.exists(path) == False:
             os.mkdir(path)
-    
+
+    # Train and evaluate
     dice_vals = {}
     for iter_model in range(1):
         validation_index = [iter_model*2, iter_model*2+1]
