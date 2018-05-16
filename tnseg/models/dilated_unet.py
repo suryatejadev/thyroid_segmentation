@@ -62,7 +62,7 @@ def upsampling_block(input_tensor, skip_tensor, filters, padding='same',
 
 def dilated_unet(height, width, channels, classes, features=64, depth=4,
                  temperature=1.0, padding='same', batchnorm=False,
-                 dropout=0.0, dilation_layers=5):
+                 dropout=0.0, dilation_layers=5, dilation=dilation):
     """Generate `dilated U-Net' model where the convolutions in the encoding and
     bottleneck are replaced by dilated convolutions. The second convolution in
     pair at a given scale in the encoder is dilated by 2. The number of
@@ -92,6 +92,7 @@ def dilated_unet(height, width, channels, classes, features=64, depth=4,
       output_width = width.
 
     """
+    dilation = tuple(map(int, dilation))
     x = Input(shape=(height, width, channels))
     inputs = x
 

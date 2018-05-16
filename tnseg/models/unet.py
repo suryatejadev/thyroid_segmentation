@@ -59,13 +59,13 @@ def upconv_block(x, x_conv, n_filt, padding='same', dropout=0.0, batchnorm=False
     conv = Dropout(dropout)(conv) if dropout>0.0 else conv
     return conv
 
-def unet(height=None, width=None, channels=1, features=32, 
-        depth=4, padding='same', temperature=1.0, 
-        batchnorm=False, dropout=0.0):
+def unet(height=None, width=None, channels=1, features=32,
+        depth=4, padding='same', temperature=1.0,
+        batchnorm=False, dropout=0.0, dilation=(1,1)):
 
     # Define the input
+    dilation = tuple(map(int, dilation))
     inputs = Input((height, width, channels))
-    dilation = (1,1)
     pool = True
 
     # Contracting path

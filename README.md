@@ -1,8 +1,6 @@
 # Thyroid Nodule Segmentation
 
-<!---![build status](https://travis-ci.org/chuckyee/cardiac-segmentation.svg?branch=master)-->
-
-This repository contains code and models to segment thyroid nodules in ultrasound images. The project is done as an independent study course. 
+This repository contains code and models to segment thyroid nodules in ultrasound images.
 
 For the problem description, models and results, please see the blog post
 [here](https://suryatejadev.github.io/thyroid-segmentation/).
@@ -21,10 +19,7 @@ You should then be able to use the package in Python:
 
 ```python
 import matplotlib.pyplot as plt
-from tnseg import patient, models
-
-p = patient.PatientData("RVSC-data/TrainingSet/patient01")
-# Explore p.images, p.endocardium_masks, etc.
+from tnseg import dataset, models, loss, opts, evaluate
 ```
 
 ## Running models
@@ -32,7 +27,7 @@ p = patient.PatientData("RVSC-data/TrainingSet/patient01")
 Scripts for model training and evaluation are located under /scripts/.
 
 ```bash
-python -u scripts/train.py defaults.config
+python -u scripts/train.py config_files/defaults.config
 ```
 
 Note: this package is written with the Tensorflow backend in mind -- (batch,

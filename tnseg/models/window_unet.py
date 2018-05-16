@@ -90,9 +90,10 @@ def unet_window_3d(img_rows, img_cols, init_filt=32, padding='same', dropout=0.0
     return model
 
 # Window UNet implementation 2D (use 2D kernel and sum conv outputs of frames to get feature maps)
-def window_unet(height=None, width=None, features=32, padding='same', dropout=0.0, batchnorm=False, dilation=(1,1), pool=True, window_size=3):
+def window_unet(height=None, width=None, features=32, padding='same', dropout=0.0, batchnorm=False, dilation=(1,1), pool=True, window_size=3, dilation=dilation):
 
     # Define the input
+    dilation = tuple(map(int, dilation))
     inputs = Input((None, None, window_size))
 
     # Contracting path

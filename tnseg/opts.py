@@ -16,16 +16,17 @@ definitions = [
     ('padding',          (str,   'same', "Padding in convolutional layers. Either `same' or `valid'.")),
     ('dropout',          (float, 0.0,    "Rate for dropout of activation units.")),
     #  ('classes',          (str,   'inner', "One of `inner' (endocardium), `outer' (epicardium), or `both'.")),
-    ('batchnorm',        {'default': False, 'action': 'store_true', 
+    ('batchnorm',        {'default': False, 'action': 'store_true',
                           'help': "Apply batch normalization before nonlinearities."}),
     ('window',            (int,   0,      "Window size for Window UNet")),
-    
+    ('dilation',            (int,   [1,1],      "Dilation parameter for the encoder architecture")),
+
     # data generator properties
-    ('zero_padding',    {'type': int, 'nargs': '+', 'default': [0,0], 
+    ('zero_padding',    {'type': int, 'nargs': '+', 'default': [0,0],
         'help': "zero_padding: None, [320, 448]. If None, zero padding is applied to each batch"}),
-    ('data_skew',       {'default': False, 'action': 'store_true', 
-                         'help': "Skew the probabilities of the batch samples in the ratio of percentage of TRUE pixels"}),  
-    
+    ('data_skew',       {'default': False, 'action': 'store_true',
+                         'help': "Skew the probabilities of the batch samples in the ratio of percentage of TRUE pixels"}),
+
     # loss
     ('loss',             (str,   'dice', "Loss function: `pixel' for pixel-wise cross entropy, `dice' for dice coefficient.")),
     ('loss-weights',     {'type': float, 'nargs': '+', 'default': [0.1, 0.9],

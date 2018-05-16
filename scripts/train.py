@@ -83,7 +83,7 @@ def train(validation_index, args):
     if args.model=='unet':
         m = models.unet(height=None, width=None, channels=1, features=args.features,
                 depth=args.depth, padding=args.padding, temperature=args.temperature,
-                batchnorm=args.batchnorm, dropout=args.dropout)
+                batchnorm=args.batchnorm, dropout=args.dropout, dilation=args.dilation)
     elif args.model=='dilated-unet':
         m = models.dilated_unet(height=None, width=None, channels=1,
                 classes=2, features=args.features, depth=args.depth,

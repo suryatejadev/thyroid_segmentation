@@ -170,7 +170,7 @@ def get_weighted_batch_window_2d(imgs, labels, batch_size, data_aug, n_window=0,
                 # k += 1
         batch_imgs = np.array([np.rollaxis(batch_imgs[n_window*i:n_window*(i+1)],0,3) for i in range(batch_size)])
         if (data_aug):
-            batch_imgs, lb =  data_augment(batch_imgs, lb)
+            batch_imgs, lb =  batch_imgs, lb#data_augment(batch_imgs, lb)
         # print('batch = ',batch_imgs.shape, lb.shape)
         yield batch_imgs,np.expand_dims(lb, axis=3)
 

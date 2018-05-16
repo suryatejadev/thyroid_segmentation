@@ -4,13 +4,12 @@ from keras.models import Model
 from keras.layers import Input, concatenate, Concatenate, Conv2D, Conv3D, MaxPooling2D, Conv2DTranspose, Dropout, \
         BatchNormalization, merge, UpSampling2D, Cropping2D, ZeroPadding2D, Reshape, core, Convolution2D, Activation, Lambda
 from keras import backend as K
-
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
-
 
 def dilated_densenet1(height, width, channels, classes, features=12, depth=4,
                      temperature=1.0, padding='same', batchnorm=False,
-                     dropout=0.0):
+                     dropout=0.0, dilation=dilation):
+    dilation = tuple(map(int, dilation))
     x = Input(shape=(height, width, channels))
     inputs = x
 
@@ -34,10 +33,10 @@ def dilated_densenet1(height, width, channels, classes, features=12, depth=4,
     model = Model(inputs=inputs, outputs=probabilities)
     return model
 
-
 def dilated_densenet2(height, width, channels, classes, features=12, depth=4,
                       temperature=1.0, padding='same', batchnorm=False,
-                      dropout=0.0):
+                      dropout=0.0, dilation=dilation):
+    dilation = tuple(map(int, dilation))
     x = Input(shape=(height, width, channels))
     inputs = x
 
@@ -66,10 +65,10 @@ def dilated_densenet2(height, width, channels, classes, features=12, depth=4,
     model = Model(inputs=inputs, outputs=probabilities)
     return model
 
-
 def dilated_densenet(height, width, channels, classes, features=12, depth=4,
                       temperature=1.0, padding='same', batchnorm=False,
-                      dropout=0.0):
+                      dropout=0.0, dilation=dilation):
+    dilation = tuple(map(int, dilation))
     x = Input(shape=(height, width, channels))
     inputs = x
 
